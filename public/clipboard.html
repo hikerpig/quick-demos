@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+    <head>
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+      <title>clipboard</title>
+    </head>
+  <body>
+    <main>
+      <div id="content1" class="block" contenteditable>例子 1</div>
+      <div id="app" class="block"></div>
+    </main>
+
+    <style type="text/css" media="screen">
+      .block {
+        background-color: whitesmoke;
+        padding: 10px;
+      }
+    </style>
+
+    <script type="module" charset="utf-8">
+      import * as ReactDOM from 'https://cdn.skypack.dev/react-dom@17.0.1'
+      import * as React from 'https://cdn.skypack.dev/react@17.0.1'
+
+      const content1 = document.getElementById('content1')
+      const main = document.body.querySelector('main')
+
+      content1.addEventListener('paste', async (e) => {
+        console.log('1, paste', e.clipboardData.types, e.clipboardData.items)
+        console.log('files', e.clipboardData.getData('image/png'))
+
+        // const maybeImage = await navigator.clipboard.read('image/*', 'base64')
+
+        // // // 消费掉了 clipboard 中的 text, 之后 clipboardData 就拿不到了
+        // const clipboardText = await navigator.clipboard.readText()
+        // console.log('clipboardText: ', clipboardText)
+
+        // const clipboardDataText = e.clipboardData.getData('text')
+        // console.log('clipboardDataText is', clipboardDataText)
+      })
+    </script>
+  </body>
+</html>

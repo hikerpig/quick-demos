@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+    <head>
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+      <title>Oh gosh so many logs freeze the devtools</title>
+    </head>
+  <body>
+    <main>
+      <h1>Please open the devtools and focus on Console tab.</h1>
+    </main>
+
+    <script type="module" charset="utf-8">
+      for (let i = 0; i < 2000; i++) {
+        console.log(`here is test ${i}`)
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>scheduling requestIdleCallback 测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./scheduling-test.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <h1>requestIdleCallback</h1>
+      <hr />
+      <p>
+        <fieldset>
+          <legend>调度方案</legend>
+          <label for="schedulerName">schedulerName: </label>
+          <select id="schedulerName">
+            <option value="requestIdleCallback" selected>requestIdleCallback</option>
+            <option value="requestAnimationFrame">requestAnimationFrame</option>
+            <option value="setTimeout">setTimeout(fn, 0)</option>
+            <option value="scheduler">scheduler.postTask 默认优先级。请确认你的浏览器支持</option>
+          </select>
+
+          <label for="" style="margin-left: 2em;"> <b>是否操作 DOM （不操作的话请打开 devtools console）</b></label>
+          <input type="checkbox" id="shouldWriteDom" checked>
+        </fieldset>
+      </p>
+      <p>
+        <button type="button" class="btn btn-primary" onclick="start()">
+          Start!
+        </button>
+        <button type="button" class="btn btn-default" onclick="startTimed()">
+          Start (with timeout=100ms) 仅对 requestIdleCallback 有效
+        </button>
+        <button type="button" class="btn btn-danger" onclick="stop()">
+          Stop!
+        </button>
+        <button type="button" class="btn btn-danger" onclick="window.clear()">
+          Clear logs
+        </button>
+      </p>
+      <div id="status" class="alert alert-info">
+        Average: .. | Min: .. | Max: .. | Count: .. Longest gap: ..
+      </div>
+      <div id="error"></div>
+      <pre id="log" onload="window.onLogElementLoad()">Not started</pre>
+    </div>
+  </body>
+</html>
