@@ -6,10 +6,18 @@
     <title>scheduling requestIdleCallback 测试</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="./scheduling-test.js"></script>
+    <style>
+      #animationObject {
+        width: 20px;
+        height: 20px;
+        position: relative;
+        background: pink;
+      }
+    </style>
   </head>
   <body>
     <div class="container-fluid">
-      <h1>requestIdleCallback</h1>
+      <h1>scheduling requestIdleCallback 测试</h1>
       <hr />
       <p>
         <fieldset>
@@ -22,22 +30,34 @@
             <option value="scheduler">scheduler.postTask 默认优先级。请确认你的浏览器支持</option>
           </select>
 
-          <label for="" style="margin-left: 2em;"> <b>是否操作 DOM （不操作的话请打开 devtools console）</b></label>
+          <label for="" style="margin-left: 2em;"> <b>Log 是否操作 DOM （否则请打开 devtools console）</b></label>
           <input type="checkbox" id="shouldWriteDom" checked>
         </fieldset>
       </p>
+      <div>
+        <fieldset>
+          <legend>模拟很长的 JS 阻塞执行</legend>
+          <div>
+            <div>
+              <label for="">数字越大 JS 越繁忙，拖得越久:</label>
+              <input type="number" id="heavyDrawRound" value="1200" />
+            </div>
+            <div id="animationObject"></div>
+          </div>
+        </fieldset>
+      </div>
       <p>
         <button type="button" class="btn btn-primary" onclick="start()">
-          Start!
+          Start
         </button>
         <button type="button" class="btn btn-default" onclick="startTimed()">
-          Start (with timeout=100ms) 仅对 requestIdleCallback 有效
+          Start (with timeout=60ms) 仅对 requestIdleCallback 有效
         </button>
         <button type="button" class="btn btn-danger" onclick="stop()">
-          Stop!
+          Stop
         </button>
         <button type="button" class="btn btn-danger" onclick="window.clear()">
-          Clear logs
+          Clear，两次 start 之间请清理一下
         </button>
       </p>
       <div id="status" class="alert alert-info">

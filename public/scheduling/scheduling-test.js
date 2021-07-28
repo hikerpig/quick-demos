@@ -1,5 +1,5 @@
 var idleId
-var ricOptions = { timeout: 100 }
+var ricOptions
 var startDate
 var lastEnd
 var lastInterval
@@ -8,25 +8,32 @@ var max = Math.max()
 var longestGap = 0
 var avg = 0
 var count = 0
+const pageLoadStart = performance.now()
+
+let animationElement
+
+let heavyDrawRoundElement
+/** heavyDraw 里需要循环多少次拖时间 */
+let heavyDrawRound = 1000
 
 let hasLogElement = false
 let logElement
 let shouldWriteDom = false
 let shouldWriteDomElement
 
-function printTickResult() {
+function printTickResult(suffix) {
   const current = performance.now()
   lastInterval = lastEnd ? current - lastEnd : false
   startDate = new Date()
   count++
   lastEnd = performance.now()
-  render()
+  printLog(suffix)
 }
 
 /**
  * 打印结果
  */
-function render() {
+function printLog(suffix) {
   min = Math.min(lastInterval, min)
   max = Math.max(lastInterval, max)
   longestGap = Math.max(lastInterval, longestGap)
@@ -34,7 +41,7 @@ function render() {
 
   const text =
     lastInterval !== false
-      ? `[${currentScheduler.name}] ${count} Ran after ${round(lastInterval)}ms \n`
+      ? `[${currentScheduler.name}] ${count} Ran after ${round(lastInterval)}ms ${suffix} \n`
       : '[Start] Ran ' + startDate + '\n'
 
   shouldWriteDom = shouldWriteDomElement && shouldWriteDomElement.checked
@@ -69,6 +76,19 @@ function render() {
   }
 }
 
+/** 通过在循环体里 forced layout 来模拟 JS 运行长的延迟 */
+function heavyDraw() {
+  if (!animationElement) return
+  const elapsed = Date.now() - pageLoadStart
+  const v = (elapsed / 10) % 300
+  let i = 0
+  while (i < heavyDrawRound) {
+    i++
+    animationElement.style.left = (v + Math.sqrt(i)) + "px"
+    animationElement.offsetLeft
+  }
+}
+
 class IdleCallbackScheduler {
   name = 'requestIdleCallback'
   idleId = 0
@@ -83,9 +103,15 @@ class IdleCallbackScheduler {
     delete this.idleId
   }
 
-  work = () => {
-    printTickResult()
+  work = (deadline = {}) => {
+    let suffix = ''
+    if (deadline && deadline.didTimeout) {
+      suffix = ', idle callback didTimeout'
+      console.log('deadline didTimeout, timeRemaining', deadline.timeRemaining())
+    }
+    printTickResult(suffix)
     this.idleId = window.requestIdleCallback(this.work, ricOptions)
+    heavyDraw()
   }
 }
 
@@ -109,6 +135,7 @@ class RAFScheduler {
   work = () => {
     printTickResult()
     this.frameId = window.requestAnimationFrame(this.work)
+    heavyDraw()
   }
 }
 
@@ -131,6 +158,7 @@ class TimeoutScheduler {
   work = () => {
     printTickResult()
     this.timerId = window.setTimeout(this.work, 0)
+    heavyDraw()
   }
 }
 
@@ -175,8 +203,11 @@ class ExperimentalScheduler {
     printTickResult()
     window.scheduler.postTask(this.work, {
       priority: 'user-visible',
+      // priority: 'background',
+      // delay: 90,
       signal: this.controller.signal,
     })
+    heavyDraw()
   }
 }
 
@@ -194,7 +225,7 @@ function start() {
 
 function startTimed() {
   stop()
-  ricOptions = { timeout: 100 }
+  ricOptions = { timeout: 60 }
   currentScheduler.start()
 }
 
@@ -218,7 +249,6 @@ window.onerror = function (msg) {
 window.addEventListener('DOMContentLoaded', () => {
   logElement = document.getElementById('log')
   shouldWriteDomElement = document.getElementById('shouldWriteDom')
-
   const select = document.getElementById('schedulerName')
 
   const schedulerMap = {
@@ -235,6 +265,13 @@ window.addEventListener('DOMContentLoaded', () => {
       console.log(`switch to ${scheduler.name}`)
       currentScheduler = scheduler
     }
+  })
+
+  animationElement = document.getElementById('animationObject')
+
+  heavyDrawRoundElement = document.getElementById('heavyDrawRound')
+  heavyDrawRoundElement.addEventListener('change', () => {
+    heavyDrawRound = heavyDrawRoundElement.value
   })
 })
 
